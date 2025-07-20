@@ -7,7 +7,7 @@ from Piece import Piece
 
 # Initialisation de Pygame
 pygame.init()
-screen = pygame.display.set_mode((800, 800))
+screen = pygame.display.set_mode((512, 512))
 pygame.display.set_caption("Chess Game")
 
 # Création du plateau d'échecs
@@ -29,20 +29,41 @@ init_back_row("white", 7)
 
 # Boucle principale
 running = True
+selected_piece = None
+selected_row, selected_col = -1, -1
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            selected_col = mouse_x // 64
+            selected_row = mouse_y // 64
+            if 0 <= selected_row < 8 and 0 <= selected_col < 8:
+                selected_piece = board[selected_row][selected_col]
+            if selected_piece:
+                print(f"Piece selected at ({selected_row}, {selected_col}): {selected_piece.type} {selected_piece.color}")
     # Boucle de jeu
     screen.fill((255, 255, 255))
     for row in range(8):
         for col in range(8):
+            if selected_col == col and selected_row == row:
+                pygame.draw.rect(screen, (0, 200, 0), (col * 64, row * 64, 64, 64))
+            elif row % 2 == col % 2:
+                pygame.draw.rect(screen, (200, 200, 200), (col * 64, row * 64, 64, 64))
+            else:
+                pygame.draw.rect(screen, (100, 100, 100), (col * 64, row * 64, 64, 64))
             piece = board[row][col]
             if piece:
-                pygame.draw.rect(screen, (0, 0, 0), (col * 100, row * 100, 100, 100))
-                pygame.draw.circle(screen, (255, 0, 0) if piece.color == 'white' else (0, 0, 255), 
-                                   (col * 100 + 50, row * 100 + 50), 30)
+                image = piece.get_image()
+                if image:
+                    image = pygame.transform.scale(image, (64, 64))
+                    screen.blit(image, (col * 64, row * 64))
+                else:
+                    # Placeholder for drawing pieces if no image is available
+                    pygame.draw.circle(screen, (255, 0, 0), (col * 64 + 50, row * 64 + 50), 30)
+
     # Affichage des pièces sur le plateau
     pygame.display.flip()
 
