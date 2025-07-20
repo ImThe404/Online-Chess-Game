@@ -3,7 +3,7 @@ import threading
 import pygame
 import json
 
-from Piece import Piece
+from Piece import *
 
 # Initialisation de Pygame
 pygame.init()
@@ -14,23 +14,26 @@ pygame.display.set_caption("Chess Game")
 board = [[None for _ in range(8)] for _ in range(8)]
 
 def init_back_row(color, row):
-    order = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"]
+    order = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
     for col in range(8):
-        board[row][col] = Piece(type=order[col], color=color)
+        board[row][col] = order[col](color)
 
 def init_pawns(color, row):
     for col in range(8):
-        board[row][col] = Piece(type="pawn", color=color)
+        board[row][col] = Pawn(color)
 
+# Initialisation du plateau
 init_back_row("black", 0)
 init_pawns("black", 1)
 init_pawns("white", 6)
 init_back_row("white", 7)
 
+
 # Boucle principale
 running = True
 selected_piece = None
 selected_row, selected_col = -1, -1
+legal_moves = []
 
 while running:
     for event in pygame.event.get():
@@ -44,12 +47,16 @@ while running:
                 selected_piece = board[selected_row][selected_col]
             if selected_piece:
                 print(f"Piece selected at ({selected_row}, {selected_col}): {selected_piece.type} {selected_piece.color}")
+                legal_moves = selected_piece.get_legal_moves((selected_col, selected_row), board)
+
     # Boucle de jeu
     screen.fill((255, 255, 255))
     for row in range(8):
         for col in range(8):
             if selected_col == col and selected_row == row:
                 pygame.draw.rect(screen, (0, 200, 0), (col * 64, row * 64, 64, 64))
+            elif (col, row) in legal_moves:
+                pygame.draw.rect(screen, (0, 0, 200), (col * 64, row * 64, 64, 64))
             elif row % 2 == col % 2:
                 pygame.draw.rect(screen, (200, 200, 200), (col * 64, row * 64, 64, 64))
             else:
