@@ -32,6 +32,7 @@ init_back_row("white", 7)
 # Boucle principale
 running = True
 selected_piece = None
+old_selected_row, old_selected_col = -1, -1
 selected_row, selected_col = -1, -1
 legal_moves = []
 
@@ -41,14 +42,25 @@ while running:
             running = False
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             mouse_x, mouse_y = pygame.mouse.get_pos()
+            old_selected_row, old_selected_col = selected_row, selected_col
             selected_col = mouse_x // 64
             selected_row = mouse_y // 64
             if 0 <= selected_row < 8 and 0 <= selected_col < 8:
-                if board[selected_row][selected_col] != None:
-                    selected_piece = board[selected_row][selected_col]
-                else :
-                    selected_piece = None
-                    selected_row, selected_col = -1, -1
+                    if selected_piece and (selected_col, selected_row) in legal_moves:
+                        # Déplacer la pièce
+                        board[selected_row][selected_col] = selected_piece
+                        board[old_selected_row][old_selected_col] = None
+                        selected_piece = None
+                        selected_row, selected_col = -1, -1
+                        legal_moves = []
+                    elif board[selected_row][selected_col] != None:
+                        # Sélection d'une pièce
+                        selected_piece = board[selected_row][selected_col]
+                    else:
+                        # Sélection dans une case vide
+                        selected_piece = None
+                        selected_row, selected_col = -1, -1
+                        legal_moves = []
             if selected_piece:
                 print(f"Piece selected at ({selected_row}, {selected_col}): {selected_piece.type} {selected_piece.color}")
                 legal_moves = selected_piece.get_legal_moves((selected_col, selected_row), board)
