@@ -35,6 +35,13 @@ selected_piece = None
 old_selected_row, old_selected_col = -1, -1
 selected_row, selected_col = -1, -1
 legal_moves = []
+turn = "white"  # Initialiser le tour à "white"
+
+def cancel_selection():
+    global selected_piece, selected_row, selected_col, legal_moves
+    selected_piece = None
+    selected_row, selected_col = -1, -1
+    legal_moves = []
 
 while running:
     for event in pygame.event.get():
@@ -50,17 +57,20 @@ while running:
                         # Déplacer la pièce
                         board[selected_row][selected_col] = selected_piece
                         board[old_selected_row][old_selected_col] = None
-                        selected_piece = None
-                        selected_row, selected_col = -1, -1
-                        legal_moves = []
+                        cancel_selection()
+                        turn = "black" if turn == "white" else "white"  # Changer de tour
                     elif board[selected_row][selected_col] != None:
                         # Sélection d'une pièce
                         selected_piece = board[selected_row][selected_col]
+                        if selected_piece.color != turn:
+                            print(f"Cannot select {selected_piece.type} of color {selected_piece.color} on {turn}'s turn.")
+                            cancel_selection()
+                        else:
+                            # Obtenir les mouvements légaux de la pièce sélectionnée
+                            legal_moves = selected_piece.get_legal_moves((selected_col, selected_row), board)
                     else:
                         # Sélection dans une case vide
-                        selected_piece = None
-                        selected_row, selected_col = -1, -1
-                        legal_moves = []
+                        cancel_selection()
             if selected_piece:
                 print(f"Piece selected at ({selected_row}, {selected_col}): {selected_piece.type} {selected_piece.color}")
                 legal_moves = selected_piece.get_legal_moves((selected_col, selected_row), board)
