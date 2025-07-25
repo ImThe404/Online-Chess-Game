@@ -7,7 +7,7 @@ def main():
     screen = pygame.display.set_mode((512, 512))
     pygame.display.set_caption("Chess Game")
 
-    game = Game(is_server=True)
+    game = Game(is_server=False, host='127.0.0.1')
     ui = UI(screen, game)
 
     clock = pygame.time.Clock()
