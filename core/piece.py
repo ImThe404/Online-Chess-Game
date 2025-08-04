@@ -32,6 +32,8 @@ class Pawn(Piece):
         moves = []
 
         # Avancer d'une case
+        print("'''''")
+        print("1:", y+ direction, "  2:", x)
         if board[y + direction][x] is None:
             moves.append((x, y + direction))
 
